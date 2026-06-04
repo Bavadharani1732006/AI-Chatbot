@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI College Chatbot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="chatbot-title">
+                    <i class="fas fa-robot"></i> AI Chatbot
+                </h1>
+                <p class="college-name">{{ college_name }}</p>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="nav-btn active" onclick="showSection('chat')">
+                    <i class="fas fa-comments"></i> Chat
+                </button>
+                <button class="nav-btn" onclick="showSection('info')">
+                    <i class="fas fa-info-circle"></i> College Info
+                </button>
+                <button class="nav-btn" onclick="showSection('faq')">
+                    <i class="fas fa-question-circle"></i> FAQs
+                </button>
+                <button class="nav-btn" onclick="showSection('settings')">
+                    <i class="fas fa-cog"></i> Settings
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="clear-btn" onclick="clearChat()">
+                    <i class="fas fa-trash"></i> Clear Chat
+                </button>
+                <div class="model-info">
+                    <small>Model: <span id="modelDisplay">{{ model }}</span></small>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Chat Section -->
+            <section id="chatSection" class="section active">
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message-welcome">
+                            <h2>Welcome to AI College Chatbot</h2>
+                            <p>Ask me anything about our college programs, admissions, facilities, and more!</p>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-area">
+                        <form id="chatForm" onsubmit="sendMessage(event)">
+                            <div class="input-group">
+                                <button type="button" class="voice-btn" onclick="startVoiceInput()" title="Voice Input">
+                                    <i class="fas fa-microphone"></i>
+                                </button>
+                                <input 
+                                    type="text" 
+                                    id="userInput" 
+                                    class="chat-input" 
+                                    placeholder="Type your question here..."
+                                    autocomplete="off"
+                                >
+                                <button type="submit" class="send-btn" title="Send">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                                <button type="button" class="voice-output-btn" onclick="toggleVoiceOutput()" title="Voice Output">
+                                    <i class="fas fa-volume-up"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- College Info Section -->
+            <section id="infoSection" class="section">
+                <div class="info-container">
+                    <h2>College Information</h2>
+                    
+                    <div class="info-tabs">
+                        <button class="tab-btn active" onclick="loadInfo('contact')">Contact</button>
+                        <button class="tab-btn" onclick="loadInfo('departments')">Departments</button>
+                        <button class="tab-btn" onclick="loadInfo('facilities')">Facilities</button>
+                        <button class="tab-btn" onclick="loadInfo('scholarships')">Scholarships</button>
+                        <button class="tab-btn" onclick="loadInfo('admission')">Admission</button>
+                    </div>
+
+                    <div id="infoContent" class="info-content">
+                        <p>Loading...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FAQ Section -->
+            <section id="faqSection" class="section">
+                <div class="faq-container">
+                    <h2>Frequently Asked Questions</h2>
+                    
+                    <div class="faq-search">
+                        <input 
+                            type="text" 
+                            id="faqSearch" 
+                            class="faq-input" 
+                            placeholder="Search FAQs..."
+                            onkeyup="searchFAQ()"
+                        >
+                    </div>
+
+                    <div id="faqContent" class="faq-content">
+                        <p>Loading FAQs...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settingsSection" class="section">
+                <div class="settings-container">
+                    <h2>Settings</h2>
+                    
+                    <div class="settings-group">
+                        <h3>AI Model</h3>
+                        <div class="radio-group">
+                            <label>
+                                <input type="radio" name="model" value="openai" checked onchange="switchModel('openai')">
+                                OpenAI (GPT-3.5)
+                            </label>
+                            <label>
+                                <input type="radio" name="model" value="gemini" onchange="switchModel('gemini')">
+                                Google Gemini
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3>Voice Settings</h3>
+                        <label>
+                            <input type="checkbox" id="voiceEnabled" checked>
+                            Enable Voice Input/Output
+                        </label>
+                        <div class="voice-rate-control">
+                            <label>Voice Speed:</label>
+                            <input type="range" id="voiceRate" min="100" max="300" value="150" onchange="updateVoiceRate(this.value)">
+                            <span id="voiceRateDisplay">150</span>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3>Appearance</h3>
+                        <label>
+                            <input type="checkbox" id="darkMode" onchange="toggleDarkMode()">
+                            Dark Mode
+                        </label>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3>Statistics</h3>
+                        <button class="stats-btn" onclick="loadStatistics()">View Statistics</button>
+                        <div id="statsDisplay" class="stats-display"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div id="loadingIndicator" class="loading-indicator hidden">
+        <div class="spinner"></div>
+        <p>AI is thinking...</p>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
